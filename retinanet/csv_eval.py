@@ -86,7 +86,7 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
         for index in range(len(dataset)):
             data = dataset[index]
             scale = data['scale']
-            image_name = dataset.self.image_names[index]
+            image_name = dataset.image_names[index]
 
             # run network
             if torch.cuda.is_available():
