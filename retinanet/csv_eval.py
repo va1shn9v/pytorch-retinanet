@@ -121,6 +121,8 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
                 # copy detections to all_detections
                 for label in range(dataset.num_classes()):
                     all_detections[index][label] = image_detections[image_detections[:, -1] == label, :-1]
+                    if label == 0:
+                        print("Len of all Detections : {}".format(all_detections[index][label]))
             else:
                 # copy detections to all_detections
                 for label in range(dataset.num_classes()):
