@@ -5,6 +5,7 @@ import json
 import os
 import matplotlib.pyplot as plt
 import torch
+import json
 
 
 
@@ -76,6 +77,7 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
         A list of lists containing the detections for each image in the generator.
     """
     all_detections = [[None for i in range(dataset.num_classes())] for j in range(len(dataset))]
+    image_to_box = {}
 
     retinanet.eval()
     
@@ -84,6 +86,7 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
         for index in range(len(dataset)):
             data = dataset[index]
             scale = data['scale']
+            image_name = dataset.self.image_names[index]
 
             # run network
             if torch.cuda.is_available():
@@ -108,6 +111,7 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
 
                 # select detections
                 image_boxes      = boxes[indices[scores_sort], :]
+                image_to_box[str(image_name)] = len(image_boxes)
                 image_scores     = scores[scores_sort]
                 image_labels     = labels[indices[scores_sort]]
                 image_detections = np.concatenate([image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_labels, axis=1)], axis=1)
@@ -121,6 +125,8 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
                     all_detections[index][label] = np.zeros((0, 5))
 
             print('{}/{}'.format(index + 1, len(dataset)), end='\r')
+    with open("image2products.json","w") as j:
+        json.dump(image_to_box,j)
 
     return all_detections
 
@@ -235,10 +241,16 @@ def evaluate(
 
     print('\nmAP:')
     for label in range(generator.num_classes()):
+        metrics = {}
         label_name = generator.label_to_name(label)
         print('{}: {}'.format(label_name, average_precisions[label][0]))
         print("Precision: ",precision[-1])
         print("Recall: ",recall[-1])
+        metrics["mAP"] = average_precisions[label][0]
+        metrics["precision"] = precision[-1]
+        metrics["recall"] = recall[-1]
+        with open("metrics.json","w") as f:
+            json.dump(metrics,f)
         
         if save_path!=None:
             plt.plot(recall,precision)
