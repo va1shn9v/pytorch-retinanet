@@ -113,7 +113,7 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
 
                 # select detections
                 image_boxes      = boxes[indices[scores_sort], :]
-                image_to_box[str(os.path.basename(image_name))] = sc_total
+                image_to_box[str(os.path.basename(image_name))] = int(sc_total)
                 image_scores     = scores[scores_sort]
                 image_labels     = labels[indices[scores_sort]]
                 image_detections = np.concatenate([image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_labels, axis=1)], axis=1)
