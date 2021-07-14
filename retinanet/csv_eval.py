@@ -96,6 +96,7 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
             scores = scores.cpu().numpy()
             labels = labels.cpu().numpy()
             boxes  = boxes.cpu().numpy()
+            print(scores.shape)
 
             # correct boxes for image scale
             boxes /= scale
